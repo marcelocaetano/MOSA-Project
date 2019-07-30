@@ -175,7 +175,7 @@ namespace Mosa.Utility.SourceCodeGenerator
 				Lines.AppendLine("\t\tpublic override bool ThreeTwoAddressConversion { get { return true; } }");
 			}
 
-			if (FlagsUsed.Contains("Z"))
+			if (FlagsUsed.Contains("Z") || FlagsUsed == "CONDITIONAL")
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsZeroFlagUsed { get { return true; } }");
@@ -211,7 +211,7 @@ namespace Mosa.Utility.SourceCodeGenerator
 				Lines.AppendLine("\t\tpublic override bool IsZeroFlagUndefined { get { return true; } }");
 			}
 
-			if (FlagsUsed.Contains("C"))
+			if (FlagsUsed.Contains("C") || FlagsUsed == "CONDITIONAL")
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsCarryFlagUsed { get { return true; } }");
@@ -247,79 +247,82 @@ namespace Mosa.Utility.SourceCodeGenerator
 				Lines.AppendLine("\t\tpublic override bool IsCarryFlagUndefined { get { return true; } }");
 			}
 
-			if (FlagsUsed.Contains("S"))
+			if (FlagsUsed.Contains("S") || FlagsUsed.Contains("N") || FlagsUsed == "CONDITIONAL")
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsSignFlagUsed { get { return true; } }");
 			}
 
-			if (FlagsSet.Contains("S"))
+			if (FlagsSet.Contains("S") || FlagsSet.Contains("N"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsSignFlagSet { get { return true; } }");
 			}
 
-			if (FlagsCleared.Contains("S"))
+			if (FlagsCleared.Contains("S") || FlagsCleared.Contains("N"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsSignFlagCleared { get { return true; } }");
 			}
 
-			if (FlagsModified.Contains("S") || FlagsSet.Contains("S") || FlagsCleared.Contains("S"))
+			if (FlagsModified.Contains("S") || FlagsSet.Contains("S") || FlagsCleared.Contains("S")
+				|| FlagsModified.Contains("N") || FlagsSet.Contains("N") || FlagsCleared.Contains("N")
+				)
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsSignFlagModified { get { return true; } }");
 			}
 
-			if (FlagsUndefined.Contains("S"))
+			if (FlagsUndefined.Contains("S") || FlagsUndefined.Contains("N"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsSignFlagUnchanged { get { return true; } }");
 			}
 
-			if (FlagsUndefined.Contains("S"))
+			if (FlagsUndefined.Contains("S") || FlagsUndefined.Contains("N"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsSignFlagUndefined { get { return true; } }");
 			}
 
-			if (FlagsUsed.Contains("O"))
+			if (FlagsUsed.Contains("O") || FlagsUsed.Contains("V") || FlagsUsed == "CONDITIONAL")
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsOverflowFlagUsed { get { return true; } }");
 			}
 
-			if (FlagsSet.Contains("O"))
+			if (FlagsSet.Contains("O") || FlagsSet.Contains("V"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsOverflowFlagSet { get { return true; } }");
 			}
 
-			if (FlagsCleared.Contains("O"))
+			if (FlagsCleared.Contains("O") || FlagsCleared.Contains("V"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsOverflowFlagCleared { get { return true; } }");
 			}
 
-			if (FlagsModified.Contains("O") || FlagsSet.Contains("O") || FlagsCleared.Contains("O"))
+			if (FlagsModified.Contains("O") || FlagsSet.Contains("O") || FlagsCleared.Contains("O")
+				|| FlagsModified.Contains("V") || FlagsSet.Contains("V") || FlagsCleared.Contains("V"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsOverflowFlagModified { get { return true; } }");
 			}
 
-			if (FlagsUndefined.Contains("O"))
+			if (FlagsUndefined.Contains("O") || FlagsUndefined.Contains("V"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsOverflowFlagUnchanged { get { return true; } }");
 			}
 
-			if (FlagsUndefined.Contains("O"))
+			if (FlagsUndefined.Contains("O") || FlagsUndefined.Contains("V"))
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsOverflowFlagUndefined { get { return true; } }");
 			}
 
-			if (FlagsUsed.Contains("P"))
+			if (FlagsUsed.Contains("P") || FlagsUsed == "CONDITIONAL")
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsParityFlagUsed { get { return true; } }");
@@ -353,6 +356,12 @@ namespace Mosa.Utility.SourceCodeGenerator
 			{
 				Lines.AppendLine();
 				Lines.AppendLine("\t\tpublic override bool IsParityFlagUndefined { get { return true; } }");
+			}
+
+			if (FlagsUsed != null && FlagsUsed == "CONDITIONAL")
+			{
+				Lines.AppendLine();
+				Lines.AppendLine("\t\tpublic override bool AreFlagUseConditional { get { return true; } }");
 			}
 
 			if (node.LogicalOpposite != null)
@@ -807,18 +816,22 @@ namespace Mosa.Utility.SourceCodeGenerator
 			{
 				case "reg3": code = "Append3Bits"; postcode = ".Register.RegisterCode"; return;
 				case "reg4x": code = "AppendBit("; postcode = ".Register.RegisterCode >> 3) & 0x1"; return;
-				case "reg4": code = "AppendNibble"; postcode = ".Register.RegisterCode"; return;
+				case "reg4": code = "Append4Bits"; postcode = ".Register.RegisterCode"; return;
 				case "reg5": code = "Append5Bits"; postcode = ".Register.RegisterCode"; return;
 				case "reg6": code = "Append6Bits"; postcode = ".Register.RegisterCode"; return;
 				case "imm32": code = "Append32BitImmediate"; return;
 				case "imm32+": code = "Append32BitImmediateWithOffset"; return;
+				case "imm2": code = "Append2BitImmediate"; return;
+				case "imm5": code = "Append5BitImmediate"; return;
 				case "imm8": code = "Append8BitImmediate"; return;
+				case "imm12": code = "Append12BitImmediate"; return;
 				case "imm16": code = "Append16BitImmediate"; return;
 				case "imm64": code = "Append64BitImmediate"; return;
 				case "rel32": code = "EmitRelative32"; return;
 				case "rel64": code = "EmitRelative64"; return;
 				case "forward32": code = "EmitForward32"; return;
 				case "supress8": code = "SuppressByte"; return;
+				case "conditional": code = "AppendNibble"; postcode = "GetConditionCode(node.ConditionCode)"; return;
 				case "": return;
 
 				default: break;
@@ -847,14 +860,14 @@ namespace Mosa.Utility.SourceCodeGenerator
 
 					switch (length)
 					{
-						case 1: code = "AppendBit("; break;
+						case 1: code = "Append1Bit("; break;
 						case 2: code = "Append2Bits("; break;
 						case 3: code = "Append3Bits("; break;
-						case 4: code = "AppendNibble("; break;
+						case 4: code = "Append4Bits("; break;
 						case 5: code = "Append5Bits("; break;
 						case 6: code = "Append6Bits("; break;
 						case 7: code = "Append7Bits("; break;
-						case 8: code = "AppendByte("; break;
+						case 8: code = "Append8Bits("; break;
 						default: code = "AppendBits("; postcode += ", " + length.ToString(); break;
 					}
 
@@ -877,8 +890,6 @@ namespace Mosa.Utility.SourceCodeGenerator
 				case "r1": return "node.Result";
 				case "r2": return "node.Result2";
 				case "label": return "node.BranchTargets[0].Label";
-				case "cond": return string.Empty; // TODO
-				case "shifter": return string.Empty; // TODO
 
 				default: return part; // pass as is
 			}

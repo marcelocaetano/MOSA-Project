@@ -56,6 +56,11 @@ namespace Mosa.Compiler.Framework
 			}
 		}
 
+		public void Append1Bit(int value)
+		{
+			AppendBit(value);
+		}
+
 		public void AppendBit(int value)
 		{
 			AppendBit(value != 0);
@@ -72,6 +77,11 @@ namespace Mosa.Compiler.Framework
 			AppendBit((value >> 2) & 0x1);
 			AppendBit((value >> 1) & 0x1);
 			AppendBit(value & 0x1);
+		}
+
+		public void Append4Bits(int value)
+		{
+			AppendNibble(value);
 		}
 
 		public void AppendNibble(int value)
@@ -128,6 +138,11 @@ namespace Mosa.Compiler.Framework
 			}
 		}
 
+		public void Append8Bits(byte value)
+		{
+			AppendByte(value);
+		}
+
 		public void AppendByte(byte value)
 		{
 			if (BitsLength == 0)
@@ -137,6 +152,11 @@ namespace Mosa.Compiler.Framework
 			}
 
 			AppendBits(value, 8);
+		}
+
+		public void Append16Bits(ushort value)
+		{
+			AppendShort(value);
 		}
 
 		public void AppendShort(ushort value)
@@ -303,6 +323,27 @@ namespace Mosa.Compiler.Framework
 			Debug.Assert(operand.IsConstant);
 
 			AppendByte((byte)operand.ConstantUnsignedInteger);
+		}
+
+		public void Append12BitImmediate(Operand operand)
+		{
+			Debug.Assert(operand.IsConstant);
+
+			AppendBits(operand.ConstantUnsignedInteger & 0xFFF, 12);
+		}
+
+		public void Append5BitImmediate(Operand operand)
+		{
+			Debug.Assert(operand.IsConstant);
+
+			AppendBits(operand.ConstantUnsignedInteger & 0b11111, 5);
+		}
+
+		public void Append2BitImmediate(Operand operand)
+		{
+			Debug.Assert(operand.IsConstant);
+
+			AppendBits(operand.ConstantUnsignedInteger & 0b11, 2);
 		}
 
 		private void WriteZeroBytes(int length)
