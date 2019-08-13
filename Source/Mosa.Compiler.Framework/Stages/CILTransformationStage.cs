@@ -487,12 +487,14 @@ namespace Mosa.Compiler.Framework.Stages
 			var result = context.Result;
 			var operands = context.GetOperands();
 
-			if (context.Previous.Instruction is CIL.ConstrainedPrefixInstruction)
+			var previous = context.Node.Previous;
+
+			if (previous.Instruction is ConstrainedPrefixInstruction)
 			{
-				var type = context.Previous.MosaType;
+				var type = context.Node.Previous.MosaType;
 
 				// remove constrained prefix
-				context.Previous.Empty();
+				previous.Empty();
 
 				if (type.IsValueType)
 				{
@@ -1114,7 +1116,7 @@ namespace Mosa.Compiler.Framework.Stages
 			var stream = symbol.Stream;
 
 			// Type Definition and sync block
-			Linker.Link(LinkType.AbsoluteAddress, PatchType.I4, symbol, 0, Metadata.TypeDefinition + "System.String", 0);
+			Linker.Link(LinkType.AbsoluteAddress, PatchType.I32, symbol, 0, Metadata.TypeDefinition + "System.String", 0);
 
 			stream.WriteZeroBytes(NativePointerSize * 2);
 

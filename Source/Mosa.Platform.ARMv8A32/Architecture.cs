@@ -113,12 +113,12 @@ namespace Mosa.Platform.ARMv8A32
 		/// <summary>
 		/// Gets the return register.
 		/// </summary>
-		public override PhysicalRegister ReturnRegister { get { return null; /* TODO */} }
+		public override PhysicalRegister ReturnRegister { get { return GeneralPurposeRegister.R0; } }
 
 		/// <summary>
 		/// Gets the return register for the high portion of the 64bit result.
 		/// </summary>
-		public override PhysicalRegister ReturnHighRegister { get { return null; /* TODO */} }
+		public override PhysicalRegister ReturnHighRegister { get { return GeneralPurposeRegister.R1; } }
 
 		/// <summary>
 		/// Gets the return floating point register.
@@ -154,7 +154,6 @@ namespace Mosa.Platform.ARMv8A32
 		/// <param name="pipeline">The pipeline to extend.</param>
 		public override void ExtendCompilerPipeline(Pipeline<BaseCompilerStage> pipeline, CompilerOptions compilerOptions)
 		{
-			// TODO
 		}
 
 		/// <summary>
@@ -164,20 +163,42 @@ namespace Mosa.Platform.ARMv8A32
 		/// <param name="compilerOptions">The compiler options.</param>
 		public override void ExtendMethodCompilerPipeline(Pipeline<BaseMethodCompilerStage> pipeline, CompilerOptions compilerOptions)
 		{
-			pipeline.InsertAfterLast<PlatformIntrinsicStage>(
-				new BaseMethodCompilerStage[]
-				{
-			        //new LongOperandTransformationStage(),
-			        new IRTransformationStage(),
-				});
-
-			//methodCompilerPipeline.InsertAfterLast<CodeGenerationStage>(
-			//    new ExceptionLayoutStage()
-			//);
-
 			pipeline.InsertBefore<GreedyRegisterAllocatorStage>(
 				new StopStage()
 			);
+
+			//pipeline.InsertBefore<CallStage>(
+			//	new Stages.RuntimeCallStage()
+			//);
+
+			pipeline.InsertAfterLast<PlatformIntrinsicStage>(
+				new BaseMethodCompilerStage[]
+				{
+					new LongOperandStage(),
+					new IRTransformationStage(),
+
+			//		compilerOptions.EnablePlatformOptimizations ? new OptimizationStage() : null,
+			//		new TweakStage(),
+			//		new FixedRegisterAssignmentStage(),
+			//		new SimpleDeadCodeRemovalStage(),
+			//		new AddressModeConversionStage(),
+			//		new FloatingPointStage(),
+				});
+
+			//pipeline.InsertAfterLast<StackLayoutStage>(
+			//	new BuildStackStage()
+			//);
+
+			//pipeline.InsertBefore<CodeGenerationStage>(
+			//	new BaseMethodCompilerStage[]
+			//	{
+			//		new FinalTweakStage(),
+			//		compilerOptions.EnablePlatformOptimizations ? new PostOptimizationStage() : null,
+			//	});
+
+			//pipeline.InsertBefore<CodeGenerationStage>(
+			//	new JumpOptimizationStage()
+			//);
 		}
 
 		/// <summary>
@@ -254,7 +275,7 @@ namespace Mosa.Platform.ARMv8A32
 		/// <returns></returns>
 		public override bool IsInstructionMove(BaseInstruction instruction)
 		{
-			return instruction == ARMv8A32.Mov32;
+			return instruction == ARMv8A32.Mov;
 		}
 	}
 }
